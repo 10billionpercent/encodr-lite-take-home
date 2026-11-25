@@ -29,37 +29,30 @@ import { z } from "zod";
  */
 export const sourceUrlSchema = z.string()
 .min(1, "Source URL is required")
-.refine((value) => {
+.superRefine((value, ctx) => {
+  let parsed: URL;
   try {
-    new URL(value);
-    return true;
-  }
-  catch {
-    return false;
-  }
-}, {message: "Enter a valid URL"})
-.refine((value) => {
-  try {
-    const parsed = new URL(value);
-    if (parsed.protocol === "https:" || parsed.protocol === "http:") {
-      return true;
+    parsed = new URL(value);
+  } catch {
+      ctx.addIssue({
+        code: "custom",
+        message: "Enter a valid URL"
+      })
+    return;
     }
-  }
-  catch {
-    return false;
-  }
-}, {message: "URL must use HTTP or HTTPS"})
-.refine((value) => {
-  try {
-    const parsed = new URL(value);
-    if (parsed.pathname !== "/") {
-      return true;
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      ctx.addIssue({
+        code: "custom",
+        message: "URL must use HTTP or HTTPS"
+      })
     }
-  }
-  catch {
-    return false;
-  }
-}, {message: "URL must include a file path"});
+    else if (parsed.pathname === "/") {
+      ctx.addIssue({
+        code: "custom",
+        message: "URL must include a file path"
+      })
+    }
+  })
 
 export const createJobSchema = z.object({
   sourceUrl: sourceUrlSchema,
