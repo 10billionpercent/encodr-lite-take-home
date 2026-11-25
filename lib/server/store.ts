@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { TIMELINE, type EncodeResult, type EncodeRun, type Job, type JobStatus } from "@/lib/types";
+import { Stage, TIMELINE, type EncodeResult, type EncodeRun, type Job, type JobStatus } from "@/lib/types";
 
 // Our "database" is two Maps held in memory. `next dev` is a single Node process, so this is fine
 // for the exercise. Restarting the dev server wipes everything — that's expected, don't work around it.
@@ -53,7 +53,46 @@ export const FAIL_URL = "https://cdn.example.com/videos/corrupt.mp4";
  * the failing URL), watch them fail, then make them pass.
  */
 export function computeRun(record: RunRecord, now: number = Date.now()): EncodeRun {
-  throw new Error("Not implemented: computeRun (see TODO above)");
+  const elapsed = now > record.startedAt ? now - record.startedAt : 0; 
+  let progressElapsed = elapsed;
+  let message: string = "";
+  let stage: Stage;
+  if (elapsed < TIMELINE.queuedEndsMs) {
+    stage = "QUEUED";
+    message = `Job ${record.jobId} queued`
+  }
+  else if (elapsed >= TIMELINE.queuedEndsMs && elapsed < TIMELINE.downloadingEndsMs) {
+    stage = "DOWNLOADING";
+    message = `Job ${record.jobId} downloading`
+  }
+  else if (record.sourceUrl === FAIL_URL && elapsed >= TIMELINE.failAtMs) {
+      stage = "FAILED";
+      progressElapsed = TIMELINE.failAtMs;
+      message = `Job ${record.jobId} failed`
+  }
+  else if (elapsed >= TIMELINE.downloadingEndsMs && elapsed < TIMELINE.transcodingEndsMs) {
+      stage = "TRANSCODING";
+      message = `Job ${record.jobId} transcoding`
+  }
+  else {
+    stage = "COMPLETED";
+    message = `Job ${record.jobId} completed`
+  }
+  const progressPct = (Math.min(progressElapsed, TIMELINE.transcodingEndsMs) / TIMELINE.transcodingEndsMs) * 100;
+  const run: EncodeRun = {
+    id: record.id,
+    jobId: record.jobId,
+    stage,
+    progressPct,
+    message
+  }
+  if (stage === "FAILED") {
+    return {...run, error: "Unable to transcode corrupt video"}
+  }
+  if (stage === "COMPLETED") {
+    return {...run, result: makeResult()}
+  }
+  return run;
 }
 
 // ---------------------------------------------------------------------------
