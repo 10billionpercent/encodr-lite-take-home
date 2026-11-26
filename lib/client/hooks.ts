@@ -64,7 +64,15 @@ export function useStartRun(jobId: string) {
  * Errors need no special handling here: api.ts throws an ApiError, and the component reads
  * `mutation.error` to decide what to show.
  */
-
+export function useCreateJob() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (values: CreateJobInput) => api.post<Job>("/api/jobs", values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: jobKeys.all });
+    },
+  });
+}
 /**
  * TASK 5 — TODO(candidate): fetch a single run's current state.
  *

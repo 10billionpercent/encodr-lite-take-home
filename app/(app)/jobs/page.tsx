@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useJobs } from "@/lib/client/hooks";
 import { StatusBadge } from "@/components/status-badge";
+import CreateJobForm  from "@/components/create-job-form";
 
 // The list half of this page is provided and will light up as soon as GET /api/jobs works
 // (Task 2). Note how it handles loading, error and empty separately — we'd like the same care
@@ -29,6 +30,7 @@ import { StatusBadge } from "@/components/status-badge";
 //
 // Try `https://cdn.example.com/videos/corrupt.mp4` as a source URL — that one is rigged to fail
 // partway through its run, so you can build the error path on the detail page.
+
 export default function JobsPage() {
   const jobs = useJobs();
 
@@ -36,9 +38,7 @@ export default function JobsPage() {
     <div className="space-y-8">
       <section>
         <h1 className="mb-4 text-xl font-semibold">New encode job</h1>
-        <p className="rounded-md border border-dashed border-neutral-300 p-4 text-sm text-neutral-500">
-          TODO(candidate): the create-job form goes here.
-        </p>
+          <CreateJobForm />
       </section>
 
       <section>
