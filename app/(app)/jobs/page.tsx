@@ -67,7 +67,7 @@ export default function JobsPage() {
               <li key={job.id}>
                 <Link
                   href={`/jobs/${job.id}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-50"
+                  className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-900"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium">{job.title}</p>
