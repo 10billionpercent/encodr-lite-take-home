@@ -31,6 +31,34 @@ import CreateJobForm from "@/components/create-job-form";
 // Try `https://cdn.example.com/videos/corrupt.mp4` as a source URL — that one is rigged to fail
 // partway through its run, so you can build the error path on the detail page.
 
+function formatRelativeTime(date: string): string {
+  const timestamp = new Date(date).getTime();
+  const diff = Date.now() - timestamp;
+
+  if (Number.isNaN(timestamp)) return "Unknown date";
+  if (diff < 60_000) return "Just now";
+
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 60) return `${minutes}m ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+
+  const createdAt = new Date(timestamp);
+  const now = new Date();
+
+  const sameYear = createdAt.getFullYear() === now.getFullYear();
+
+  return createdAt.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" }),
+  });
+}
+
 export default function JobsPage() {
   const jobs = useJobs();
 
@@ -75,6 +103,9 @@ export default function JobsPage() {
                     <p className="truncate font-medium">{job.title}</p>
                     <p className="truncate text-xs text-neutral-500">
                       {job.sourceUrl}
+                    </p>
+                    <p className="text-xs text-neutral-400">
+                      Created {formatRelativeTime(job.createdAt)}
                     </p>
                   </div>
                   <StatusBadge value={job.status} />
