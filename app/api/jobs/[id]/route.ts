@@ -7,7 +7,10 @@ import { getJob } from "@/lib/server/store";
 // Note two things:
 //   - the handler body is wrapped in withAuth, so unauthenticated requests get a 401 automatically;
 //   - a missing job is a 404 with a useful message, not a crash.
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   return withAuth(req, () => {
     const job = getJob(id);

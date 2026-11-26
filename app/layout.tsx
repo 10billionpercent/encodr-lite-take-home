@@ -7,7 +7,11 @@ export const metadata: Metadata = {
   description: "Submit media for transcoding and watch encode jobs run.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>

@@ -7,7 +7,10 @@ import { getRun } from "@/lib/server/store";
 // because computeRun() derives everything from the clock. Nothing is pushed to the browser —
 // the browser keeps asking. That's what makes the cleanup in your polling hook important:
 // if you never stop asking, the requests keep going after the user has navigated away.
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id } = await params;
   return withAuth(req, () => {
     const run = getRun(id);

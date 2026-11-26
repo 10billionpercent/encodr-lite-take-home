@@ -50,14 +50,14 @@ Every file says at the top which it is.
 
 **You build — six tasks, in this order:**
 
-| # | Task | Where | Rough time |
-|---|---|---|---|
-| 1 | Source-URL validation | `lib/schemas.ts` | 30 min |
-| 2 | The jobs API routes | `app/api/jobs/route.ts` | 45 min |
-| 3 | The run state machine | `lib/server/store.ts` → `computeRun()` | 1 hr |
-| 4 | The create-job form | `app/(app)/jobs/page.tsx`, `lib/client/hooks.ts` | 1 hr |
-| 5 | Live progress + results | `lib/client/use-run-polling.ts`, `app/(app)/jobs/[id]/page.tsx` | 1.5 hr |
-| 6 | Tests | `__tests__/` | 45 min |
+| #   | Task                    | Where                                                           | Rough time |
+| --- | ----------------------- | --------------------------------------------------------------- | ---------- |
+| 1   | Source-URL validation   | `lib/schemas.ts`                                                | 30 min     |
+| 2   | The jobs API routes     | `app/api/jobs/route.ts`                                         | 45 min     |
+| 3   | The run state machine   | `lib/server/store.ts` → `computeRun()`                          | 1 hr       |
+| 4   | The create-job form     | `app/(app)/jobs/page.tsx`, `lib/client/hooks.ts`                | 1 hr       |
+| 5   | Live progress + results | `lib/client/use-run-polling.ts`, `app/(app)/jobs/[id]/page.tsx` | 1.5 hr     |
+| 6   | Tests                   | `__tests__/`                                                    | 45 min     |
 
 The order matters — each task makes the next one visible in the browser. Task 3 is the one we'd
 most like you to get right.
@@ -214,6 +214,6 @@ Other rules:
 
 ---
 
-*Questions about the brief? Email [HIRING CONTACT].*
+_Questions about the brief? Email [HIRING CONTACT]._
 
 Good luck — we're looking forward to reading it.

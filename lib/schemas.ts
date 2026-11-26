@@ -27,32 +27,32 @@ import { z } from "zod";
  *     chain more than one refine, each with its own message.
  *   - Write the test for this FIRST — see __tests__/example.test.ts for the pattern.
  */
-export const sourceUrlSchema = z.string()
-.min(1, "Source URL is required")
-.superRefine((value, ctx) => {
-  let parsed: URL;
-  try {
-    parsed = new URL(value);
-  } catch {
+export const sourceUrlSchema = z
+  .string()
+  .min(1, "Source URL is required")
+  .superRefine((value, ctx) => {
+    let parsed: URL;
+    try {
+      parsed = new URL(value);
+    } catch {
       ctx.addIssue({
         code: "custom",
-        message: "Enter a valid URL"
-      })
-    return;
+        message: "Enter a valid URL",
+      });
+      return;
     }
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
       ctx.addIssue({
         code: "custom",
-        message: "URL must use HTTP or HTTPS"
-      })
-    }
-    else if (parsed.pathname === "/") {
+        message: "URL must use HTTP or HTTPS",
+      });
+    } else if (parsed.pathname === "/") {
       ctx.addIssue({
         code: "custom",
-        message: "URL must include a file path"
-      })
+        message: "URL must include a file path",
+      });
     }
-  })
+  });
 
 export const createJobSchema = z.object({
   sourceUrl: sourceUrlSchema,

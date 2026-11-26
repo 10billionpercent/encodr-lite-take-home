@@ -12,7 +12,12 @@ const TOKEN_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours — long enough that it won'
 
 /** The one hard-coded user. Credentials are in the README. */
 const USERS: (User & { password: string })[] = [
-  { id: "u_demo", email: "demo@encodr.dev", name: "Demo User", password: "password123" },
+  {
+    id: "u_demo",
+    email: "demo@encodr.dev",
+    name: "Demo User",
+    password: "password123",
+  },
 ];
 
 function sign(payload: string): string {
@@ -20,7 +25,9 @@ function sign(payload: string): string {
 }
 
 export function authenticate(email: string, password: string): User | null {
-  const user = USERS.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+  const user = USERS.find(
+    (u) => u.email.toLowerCase() === email.trim().toLowerCase(),
+  );
   if (!user || user.password !== password) return null;
   const { password: _pw, ...safe } = user;
   return safe;

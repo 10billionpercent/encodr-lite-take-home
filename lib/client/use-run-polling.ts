@@ -68,22 +68,25 @@ const initialState: RunPollingState = {
  * isn't working — and this is exactly the bug we'll ask you about in the interview.
  */
 
-  const appendMessage = (log: string[], msg: string) => {
-    if (log[log.length - 1] === msg) return log;
-    return [...log, msg]
-  }
+const appendMessage = (log: string[], msg: string) => {
+  if (log[log.length - 1] === msg) return log;
+  return [...log, msg];
+};
 
-  const getErrorMessage = (e: unknown) => {
-    return e instanceof Error ? e.message : "Something went wrong";
-  }
+const getErrorMessage = (e: unknown) => {
+  return e instanceof Error ? e.message : "Something went wrong";
+};
 
-export function useRunPolling(runId: string | null, onFinished?: () => void): RunPollingState {
+export function useRunPolling(
+  runId: string | null,
+  onFinished?: () => void,
+): RunPollingState {
   const [state, setState] = useState<RunPollingState>(initialState);
 
   useEffect(() => {
     if (!runId) return;
     // TODO(candidate): start polling here, and return a cleanup function.
-    let cancelled = false; 
+    let cancelled = false;
     let polling = true;
     let fetching = false; // extra variable to ensure a request is not fired while another is in flight
     let pollingInterval: ReturnType<typeof setInterval>;
@@ -100,69 +103,73 @@ export function useRunPolling(runId: string | null, onFinished?: () => void): Ru
         polling = !isRunFinished;
 
         setState({
-        run: initialRun, 
-        polling: polling, 
-        fetchError: null, 
-        log: [initialRun.message]});
+          run: initialRun,
+          polling: polling,
+          fetchError: null,
+          log: [initialRun.message],
+        });
         if (isRunFinished) onFinished?.();
       } catch (e) {
         polling = false;
         if (cancelled) return;
 
-        setState((prev) => ({...prev,
+        setState((prev) => ({
+          ...prev,
           polling: polling,
-          fetchError: getErrorMessage(e)
+          fetchError: getErrorMessage(e),
         }));
       }
 
       if (!polling) return;
 
       pollingInterval = setInterval(async () => {
-      if (cancelled || !polling || fetching) return;
+        if (cancelled || !polling || fetching) return;
 
-      try {
-      fetching = true;
-      const run: EncodeRun = await fetchRun(runId);
+        try {
+          fetching = true;
+          const run: EncodeRun = await fetchRun(runId);
 
-      const isRunFinished = isTerminalStage(run.stage);
-      polling = !isRunFinished;
+          const isRunFinished = isTerminalStage(run.stage);
+          polling = !isRunFinished;
 
-      if (cancelled) return;
-      setState((prev) => ({
-        run: run, 
-        polling: polling, 
-        fetchError: null, 
-        log: appendMessage(prev.log, run.message)}));
-        if (isRunFinished) onFinished?.()
+          if (cancelled) return;
+          setState((prev) => ({
+            run: run,
+            polling: polling,
+            fetchError: null,
+            log: appendMessage(prev.log, run.message),
+          }));
+          if (isRunFinished) onFinished?.();
 
-      if (!polling) {
-        clearInterval(pollingInterval);
-        return;
+          if (!polling) {
+            clearInterval(pollingInterval);
+            return;
+          }
+        } catch (e) {
+          polling = false;
+          clearInterval(pollingInterval);
+
+          if (cancelled) return;
+
+          setState((prev) => ({
+            ...prev,
+            polling: polling,
+            fetchError: getErrorMessage(e),
+          }));
+        } finally {
+          fetching = false;
         }
-      } catch (e) {
-        polling = false;
-        clearInterval(pollingInterval);
-
-        if (cancelled) return;
-
-        setState((prev) => ({...prev,
-          polling: polling,
-          fetchError: getErrorMessage(e)
-        }));
-      } finally {
-        fetching = false;
-      }
-    }, 1000);
-    }
+      }, 1000);
+    };
     fetchInitialRunAndSetupTimer();
 
-      return () => {
-            cancelled = true;
-            polling = false;
-            if (pollingInterval) {
-            clearInterval(pollingInterval);
-            }
+    return () => {
+      cancelled = true;
+      polling = false;
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
       }
+    };
   }, [runId]);
 
   return state;

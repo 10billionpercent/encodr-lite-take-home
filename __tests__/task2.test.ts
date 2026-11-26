@@ -71,9 +71,7 @@ describe("POST /api/jobs", () => {
     const job = await response.json();
 
     expect(response.status).toBe(201);
-    expect(job.sourceUrl).toBe(
-      "https://cdn.example.com/videos/clip.mp4",
-    );
+    expect(job.sourceUrl).toBe("https://cdn.example.com/videos/clip.mp4");
     expect(job.title).toBe("My video");
     expect(job.id).toBeDefined();
   });
@@ -93,9 +91,7 @@ describe("POST /api/jobs", () => {
     const job = await response.json();
 
     expect(response.status).toBe(201);
-    expect(job.sourceUrl).toBe(
-      "https://cdn.example.com/videos/clip.mp4",
-    );
+    expect(job.sourceUrl).toBe("https://cdn.example.com/videos/clip.mp4");
     expect(job.title).toBe("clip.mp4");
   });
 

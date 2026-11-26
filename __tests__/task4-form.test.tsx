@@ -110,25 +110,25 @@ describe("CreateJobForm", () => {
   });
 
   it("shows a server validation error under the source URL field", async () => {
-  const user = userEvent.setup();
+    const user = userEvent.setup();
 
-  mockMutateAsync.mockRejectedValueOnce(
-    new ApiError(422, "Validation failed", {
-      sourceUrl: ["URL must include a file path"],
-    }),
-  );
+    mockMutateAsync.mockRejectedValueOnce(
+      new ApiError(422, "Validation failed", {
+        sourceUrl: ["URL must include a file path"],
+      }),
+    );
 
-  render(<CreateJobForm />);
+    render(<CreateJobForm />);
 
-  await user.type(
-    screen.getByLabelText("Source URL"),
-    "https://cdn.example.com/videos/my-video.mp4",
-  );
+    await user.type(
+      screen.getByLabelText("Source URL"),
+      "https://cdn.example.com/videos/my-video.mp4",
+    );
 
-  await user.click(screen.getByRole("button", { name: "Create job" }));
+    await user.click(screen.getByRole("button", { name: "Create job" }));
 
-  expect(
-    await screen.findByText("URL must include a file path"),
-  ).toBeInTheDocument();
-});
+    expect(
+      await screen.findByText("URL must include a file path"),
+    ).toBeInTheDocument();
+  });
 });

@@ -32,16 +32,15 @@ export default function CreateJobForm() {
       if (e instanceof ApiError && e.fieldErrors) {
         if (e.fieldErrors.sourceUrl) {
           setError("sourceUrl", {
-            message: e.fieldErrors.sourceUrl[0]
-          })
+            message: e.fieldErrors.sourceUrl[0],
+          });
         }
         if (e.fieldErrors.title) {
-        setError("title", {
-          message: e.fieldErrors.title[0]
-        })
-      }
-      }
-      else {
+          setError("title", {
+            message: e.fieldErrors.title[0],
+          });
+        }
+      } else {
         setFormError(e instanceof Error ? e.message : "Job creation failed");
       }
     }
@@ -49,10 +48,12 @@ export default function CreateJobForm() {
 
   return (
     <div className="mx-auto flex max-w-sm flex-col justify-center px-4">
-
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label htmlFor="source-url" className="mb-1 block text-sm font-medium">
+          <label
+            htmlFor="source-url"
+            className="mb-1 block text-sm font-medium"
+          >
             Source URL
           </label>
           <input
@@ -60,7 +61,11 @@ export default function CreateJobForm() {
             {...register("sourceUrl")}
             className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
           />
-          {errors.sourceUrl && <p className="mt-1 text-xs text-red-600">{errors.sourceUrl.message}</p>}
+          {errors.sourceUrl && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.sourceUrl.message}
+            </p>
+          )}
         </div>
 
         <div>

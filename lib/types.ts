@@ -4,7 +4,8 @@
 
 export type JobStatus = "NEW" | "RUNNING" | "COMPLETED" | "FAILED";
 
-export type Stage = "QUEUED" | "DOWNLOADING" | "TRANSCODING" | "COMPLETED" | "FAILED";
+export type Stage =
+  "QUEUED" | "DOWNLOADING" | "TRANSCODING" | "COMPLETED" | "FAILED";
 
 /** The stages a run passes through while it's still working, in order. */
 export const ACTIVE_STAGES = ["QUEUED", "DOWNLOADING", "TRANSCODING"] as const;

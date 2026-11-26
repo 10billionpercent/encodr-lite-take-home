@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useJobs } from "@/lib/client/hooks";
 import { StatusBadge } from "@/components/status-badge";
-import CreateJobForm  from "@/components/create-job-form";
+import CreateJobForm from "@/components/create-job-form";
 
 // The list half of this page is provided and will light up as soon as GET /api/jobs works
 // (Task 2). Note how it handles loading, error and empty separately — we'd like the same care
@@ -38,13 +38,15 @@ export default function JobsPage() {
     <div className="space-y-8">
       <section>
         <h1 className="mb-4 text-xl font-semibold">New encode job</h1>
-          <CreateJobForm />
+        <CreateJobForm />
       </section>
 
       <section>
         <h2 className="mb-4 text-xl font-semibold">Jobs</h2>
 
-        {jobs.isLoading && <p className="text-sm text-neutral-500">Loading jobs…</p>}
+        {jobs.isLoading && (
+          <p className="text-sm text-neutral-500">Loading jobs…</p>
+        )}
 
         {jobs.isError && (
           <div className="text-sm text-red-600">
@@ -71,7 +73,9 @@ export default function JobsPage() {
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium">{job.title}</p>
-                    <p className="truncate text-xs text-neutral-500">{job.sourceUrl}</p>
+                    <p className="truncate text-xs text-neutral-500">
+                      {job.sourceUrl}
+                    </p>
                   </div>
                   <StatusBadge value={job.status} />
                 </Link>

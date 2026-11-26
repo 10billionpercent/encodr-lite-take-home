@@ -155,9 +155,10 @@ describe("JobDetailPage", () => {
 
     expect(screen.getByText("Job not found.")).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("link", { name: /back to jobs/i }),
-    ).toHaveAttribute("href", "/jobs");
+    expect(screen.getByRole("link", { name: /back to jobs/i })).toHaveAttribute(
+      "href",
+      "/jobs",
+    );
   });
 
   it("shows not-found when job data is missing", async () => {
@@ -196,9 +197,7 @@ describe("JobDetailPage", () => {
   it("starts encoding when button is clicked", async () => {
     await renderPage();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Start encoding" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Start encoding" }));
 
     await waitFor(() => {
       expect(mocks.mutateAsync).toHaveBeenCalledOnce();
@@ -216,9 +215,7 @@ describe("JobDetailPage", () => {
     setup({ mutationPending: true });
     await renderPage();
 
-    expect(
-      screen.getByRole("button", { name: "Encoding..." }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Encoding..." })).toBeDisabled();
   });
 
   // Restoring a previous run
@@ -276,9 +273,7 @@ describe("JobDetailPage", () => {
 
     expect(screen.getByText("65%")).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("button", { name: "Encoding..." }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Encoding..." })).toBeDisabled();
   });
 
   it("renders logs in the correct order", async () => {
@@ -290,9 +285,7 @@ describe("JobDetailPage", () => {
 
     await renderPage();
 
-    const logItems = screen
-      .getAllByRole("list")[0]
-      .querySelectorAll("li");
+    const logItems = screen.getAllByRole("list")[0].querySelectorAll("li");
 
     expect(logItems).toHaveLength(3);
     expect(logItems[0]).toHaveTextContent("Queued");
@@ -306,9 +299,7 @@ describe("JobDetailPage", () => {
     setup({ run: failedRun });
     await renderPage();
 
-    expect(
-      screen.getByText("The source video is corrupt"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("The source video is corrupt")).toBeInTheDocument();
 
     expect(screen.getByText("FAILED")).toBeInTheDocument();
 
@@ -321,9 +312,7 @@ describe("JobDetailPage", () => {
     setup({ run: failedRun });
     await renderPage();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "Retry encoding" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Retry encoding" }));
 
     await waitFor(() => {
       expect(mocks.mutateAsync).toHaveBeenCalledOnce();
@@ -343,9 +332,7 @@ describe("JobDetailPage", () => {
     setup({ run: completedRun });
     await renderPage();
 
-    expect(
-      screen.getByText("Completed in 12 seconds"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Completed in 12 seconds")).toBeInTheDocument();
 
     expect(screen.getByTestId("progress-bar")).toHaveAttribute(
       "data-value",

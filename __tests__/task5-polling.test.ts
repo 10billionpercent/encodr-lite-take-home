@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { fetchRun } from "@/lib/client/hooks";
@@ -65,51 +64,55 @@ describe("useRunPolling", () => {
   });
 
   it("does not start another poll while a request is in flight", async () => {
-  vi.mocked(fetchRun).mockResolvedValueOnce(makeRun());
+    vi.mocked(fetchRun).mockResolvedValueOnce(makeRun());
 
-  let resolvePollingRequest!: (run: EncodeRun) => void;
+    let resolvePollingRequest!: (run: EncodeRun) => void;
 
-  const pendingPollingRequest = new Promise<EncodeRun>((resolve) => {
-    resolvePollingRequest = resolve;
+    const pendingPollingRequest = new Promise<EncodeRun>((resolve) => {
+      resolvePollingRequest = resolve;
+    });
+
+    vi.mocked(fetchRun).mockReturnValueOnce(pendingPollingRequest);
+
+    const { unmount } = renderHook(() => useRunPolling("run_1"));
+
+    // Initial fetch resolves
+    await act(async () => {});
+
+    expect(fetchRun).toHaveBeenCalledTimes(1);
+
+    // Advance by 1 second. The first polling request starts and stays pending.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(fetchRun).toHaveBeenCalledTimes(2);
+
+    // Advance 3 more seconds while the polling request is still pending.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
+    });
+
+    // No overlapping requests should have been started.
+    expect(fetchRun).toHaveBeenCalledTimes(2);
+
+    // Resolve the pending request so it doesn't remain hanging.
+    await act(async () => {
+      resolvePollingRequest(makeRun());
+      await pendingPollingRequest;
+    });
+
+    unmount();
   });
-
-  vi.mocked(fetchRun).mockReturnValueOnce(pendingPollingRequest);
-
-  const { unmount } = renderHook(() => useRunPolling("run_1"));
-
-  // Initial fetch resolves
-  await act(async () => {});
-
-  expect(fetchRun).toHaveBeenCalledTimes(1);
-
-  // Advance by 1 second. The first polling request starts and stays pending.
-  await act(async () => {
-    await vi.advanceTimersByTimeAsync(1000);
-  });
-
-  expect(fetchRun).toHaveBeenCalledTimes(2);
-
-  // Advance 3 more seconds while the polling request is still pending.
-  await act(async () => {
-    await vi.advanceTimersByTimeAsync(3000);
-  });
-
-  // No overlapping requests should have been started.
-  expect(fetchRun).toHaveBeenCalledTimes(2);
-
-  // Resolve the pending request so it doesn't remain hanging.
-  await act(async () => {
-    resolvePollingRequest(makeRun());
-    await pendingPollingRequest;
-  });
-
-  unmount();
-});
 
   it("updates the run and appends new messages to the log without consecutive duplicates", async () => {
     vi.mocked(fetchRun)
-      .mockResolvedValueOnce(makeRun({ message: "Downloading source video..." }))
-      .mockResolvedValueOnce(makeRun({ message: "Downloading source video..." }))
+      .mockResolvedValueOnce(
+        makeRun({ message: "Downloading source video..." }),
+      )
+      .mockResolvedValueOnce(
+        makeRun({ message: "Downloading source video..." }),
+      )
       .mockResolvedValueOnce(
         makeRun({
           stage: "TRANSCODING",
@@ -225,10 +228,9 @@ describe("useRunPolling", () => {
   it("stops polling the old run when runId changes", async () => {
     vi.mocked(fetchRun).mockResolvedValue(makeRun());
 
-    const { rerender } = renderHook(
-      ({ runId }) => useRunPolling(runId),
-      { initialProps: { runId: "run_1" as string | null } },
-    );
+    const { rerender } = renderHook(({ runId }) => useRunPolling(runId), {
+      initialProps: { runId: "run_1" as string | null },
+    });
 
     await act(async () => {});
 

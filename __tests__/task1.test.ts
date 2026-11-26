@@ -4,7 +4,8 @@ import { sourceUrlSchema } from "@/lib/schemas";
 describe("sourceUrlSchema", () => {
   it("accepts a valid HTTPS media URL", () => {
     expect(
-      sourceUrlSchema.safeParse("https://cdn.example.com/videos/clip.mp4").success,
+      sourceUrlSchema.safeParse("https://cdn.example.com/videos/clip.mp4")
+        .success,
     ).toBe(true);
   });
 
@@ -31,9 +32,7 @@ describe("sourceUrlSchema", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe(
-        "URL must use HTTP or HTTPS",
-      );
+      expect(result.error.issues[0].message).toBe("URL must use HTTP or HTTPS");
     }
   });
 

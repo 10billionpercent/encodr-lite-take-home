@@ -41,7 +41,11 @@ import { ProgressBar } from "@/components/progress-bar";
 
 type RunPanelState = "idle" | "running" | "failed" | "completed";
 
-export default function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function JobDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = use(params);
   const jobQuery = useJob(id);
   const [runId, setRunId] = useState<string | null>(null);
@@ -51,22 +55,22 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   const polling = useRunPolling(activeRunId, () => jobQuery.refetch());
 
   const panelState: RunPanelState =
-  polling.run?.error || polling.run?.stage === "FAILED"
-    ? "failed"
-    : polling.run?.stage === "COMPLETED"
-    ? "completed"
-    : startRun.isPending || polling.polling || polling.run !== null
-    ? "running"
-    : "idle";
+    polling.run?.error || polling.run?.stage === "FAILED"
+      ? "failed"
+      : polling.run?.stage === "COMPLETED"
+        ? "completed"
+        : startRun.isPending || polling.polling || polling.run !== null
+          ? "running"
+          : "idle";
 
   const handleStartRun = async () => {
     try {
       const res = await startRun.mutateAsync();
       setRunId(res.runId);
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
-  }
+  };
 
   if (jobQuery.isLoading) {
     return <p className="text-sm text-neutral-500">Loading job…</p>;
@@ -99,99 +103,111 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
         <StatusBadge value={job.status} />
       </div>
       {panelState === "failed" && (
-  <p className="rounded-md border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-500 shadow-[0_0_12px_rgba(239,68,68,0.32)]">
-    {polling.run?.error}
-  </p>
-)}
+        <p className="rounded-md border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-500 shadow-[0_0_12px_rgba(239,68,68,0.32)]">
+          {polling.run?.error}
+        </p>
+      )}
       <button
-          onClick={handleStartRun}
-          disabled={
-  startRun.isPending ||
-  panelState === "running" ||
-  (activeRunId !== null && polling.run === null)
-}
-          className="w-[352px] rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {panelState === "failed"
-  ? "Retry encoding"
-  : panelState === "running"
-  ? "Encoding..."
-  : "Start encoding"}
+        onClick={handleStartRun}
+        disabled={
+          startRun.isPending ||
+          panelState === "running" ||
+          (activeRunId !== null && polling.run === null)
+        }
+        className="w-[352px] rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+      >
+        {panelState === "failed"
+          ? "Retry encoding"
+          : panelState === "running"
+            ? "Encoding..."
+            : "Start encoding"}
       </button>
 
       <div className="flex items-center gap-4">
         {activeRunId && (
           <div className="w-full">
-          {polling.run ? (<>
-            <div className="flex-1 min-w-0">
-         <div className="flex items-start justify-between gap-4">
-  <div className="min-w-0">
-    <p className="truncate text-sm text-neutral-500">PROGRESS</p>
-    <h1 className="truncate text-xl font-semibold mb-2">
-      {Number((polling.run?.progressPct ?? 0).toFixed(2))}%
-    </h1>
-  </div>
+            {polling.run ? (
+              <>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm text-neutral-500">
+                        PROGRESS
+                      </p>
+                      <h1 className="truncate text-xl font-semibold mb-2">
+                        {Number((polling.run?.progressPct ?? 0).toFixed(2))}%
+                      </h1>
+                    </div>
 
-  <StatusBadge value={polling.run?.stage ?? "QUEUED"} />
-</div>
-          <ProgressBar value={polling.run?.progressPct ?? 0} />
-          {panelState === "completed" && (<p className="text-md text-neutral-500 mt-2">Completed in {polling.run.result?.durationSec} seconds</p>)}
-        </div>
+                    <StatusBadge value={polling.run?.stage ?? "QUEUED"} />
+                  </div>
+                  <ProgressBar value={polling.run?.progressPct ?? 0} />
+                  {panelState === "completed" && (
+                    <p className="text-md text-neutral-500 mt-2">
+                      Completed in {polling.run.result?.durationSec} seconds
+                    </p>
+                  )}
+                </div>
 
-         <div className="flex-1 min-w-0">
-         <div className="flex flex-col items-start gap-4">
- <div className="w-full min-w-0">
-  {polling.log && polling.log.length > 0 && (
-    <>
-      <p className="truncate text-sm text-neutral-500 mt-4 mb-4">LOGS</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col items-start gap-4">
+                    <div className="w-full min-w-0">
+                      {polling.log && polling.log.length > 0 && (
+                        <>
+                          <p className="truncate text-sm text-neutral-500 mt-4 mb-4">
+                            LOGS
+                          </p>
 
-      <ul className="w-full divide-y divide-neutral-200 rounded-md border border-neutral-200">
-        {polling.log.map((log) => (
-          <li
-            key={log}
-            className="px-4 py-3 hover:bg-neutral-900"
-          >
-            <p className="text-sm">{log}</p>
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
+                          <ul className="w-full divide-y divide-neutral-200 rounded-md border border-neutral-200">
+                            {polling.log.map((log) => (
+                              <li
+                                key={log}
+                                className="px-4 py-3 hover:bg-neutral-900"
+                              >
+                                <p className="text-sm">{log}</p>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
 
-  {polling.run.result?.renditions &&
-  polling.run.result.renditions.length > 0 && (
-    <>
-      <p className="truncate text-sm text-neutral-500 mt-6 mb-4">
-        RENDITIONS
-      </p>
+                      {polling.run.result?.renditions &&
+                        polling.run.result.renditions.length > 0 && (
+                          <>
+                            <p className="truncate text-sm text-neutral-500 mt-6 mb-4">
+                              RENDITIONS
+                            </p>
 
-      <ul className="w-full divide-y divide-neutral-200 rounded-md border border-neutral-200">
-        {polling.run.result.renditions.map((r) => (
-          <li
-            key={r.label}
-            className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-neutral-900"
-          >
-            <div className="min-w-0">
-              <p className="font-medium">{r.label} (                {r.width} × {r.height})</p>
-            </div>
+                            <ul className="w-full divide-y divide-neutral-200 rounded-md border border-neutral-200">
+                              {polling.run.result.renditions.map((r) => (
+                                <li
+                                  key={r.label}
+                                  className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-neutral-900"
+                                >
+                                  <div className="min-w-0">
+                                    <p className="font-medium">
+                                      {r.label} ( {r.width} × {r.height})
+                                    </p>
+                                  </div>
 
-            <p className="shrink-0 text-sm text-neutral-500">
-              {r.sizeMb} MB
-            </p>
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
-</div>
-</div>
-        </div>
-        </>) : (<p className="text-sm text-neutral-500">Loading run…</p>
-)} </div>
+                                  <p className="shrink-0 text-sm text-neutral-500">
+                                    {r.sizeMb} MB
+                                  </p>
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-neutral-500">Loading run…</p>
+            )}{" "}
+          </div>
         )}
       </div>
-
-      
     </div>
   );
 }

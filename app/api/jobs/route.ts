@@ -36,7 +36,7 @@ export async function GET(req: Request) {
   return withAuth(req, () => {
     const jobs = listJobs();
     return json(jobs);
-  })
+  });
 }
 
 export async function POST(req: Request) {
@@ -44,11 +44,10 @@ export async function POST(req: Request) {
     const body = await readJson(req);
     const parse = createJobSchema.safeParse(body);
     if (parse.success) {
-      const newJob = createJob(parse.data)
-      return json(newJob, 201)
-    }
-    else {
+      const newJob = createJob(parse.data);
+      return json(newJob, 201);
+    } else {
       return validationError(parse.error);
     }
-  })
+  });
 }

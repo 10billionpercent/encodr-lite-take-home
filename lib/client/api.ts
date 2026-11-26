@@ -13,7 +13,11 @@ export class ApiError extends Error {
    */
   fieldErrors?: Record<string, string[]>;
 
-  constructor(status: number, message: string, fieldErrors?: Record<string, string[]>) {
+  constructor(
+    status: number,
+    message: string,
+    fieldErrors?: Record<string, string[]>,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
@@ -63,5 +67,6 @@ async function request<T>(
 
 export const api = {
   get: <T>(path: string, signal?: AbortSignal) => request<T>(path, { signal }),
-  post: <T>(path: string, body?: unknown) => request<T>(path, { method: "POST", body }),
+  post: <T>(path: string, body?: unknown) =>
+    request<T>(path, { method: "POST", body }),
 };
