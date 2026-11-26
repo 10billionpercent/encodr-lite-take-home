@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { EncodeRun } from "@/lib/types";
+import { fetchRun } from "./hooks";
+import { isTerminalStage } from "@/lib/types";
 
 export interface RunPollingState {
   /** The latest run state we've received, or null before the first response. */
@@ -65,12 +67,102 @@ const initialState: RunPollingState = {
  * back to the jobs list before it finishes. The logs should stop. If they don't, the cleanup
  * isn't working — and this is exactly the bug we'll ask you about in the interview.
  */
+
+  const appendMessage = (log: string[], msg: string) => {
+    if (log[log.length - 1] === msg) return log;
+    return [...log, msg]
+  }
+
+  const getErrorMessage = (e: unknown) => {
+    return e instanceof Error ? e.message : "Something went wrong";
+  }
+
 export function useRunPolling(runId: string | null, onFinished?: () => void): RunPollingState {
-  const [state] = useState<RunPollingState>(initialState);
+  const [state, setState] = useState<RunPollingState>(initialState);
 
   useEffect(() => {
     if (!runId) return;
     // TODO(candidate): start polling here, and return a cleanup function.
+    let cancelled = false; 
+    let polling = true;
+    let fetching = false; // extra variable to ensure a request is not fired while another is in flight
+    let pollingInterval: ReturnType<typeof setInterval>;
+
+    const fetchInitialRunAndSetupTimer = async () => {
+      if (cancelled) return;
+      setState(initialState);
+
+      try {
+        const initialRun: EncodeRun = await fetchRun(runId);
+        if (cancelled) return;
+
+        const isRunFinished = isTerminalStage(initialRun.stage);
+        polling = !isRunFinished;
+
+        setState({
+        run: initialRun, 
+        polling: polling, 
+        fetchError: null, 
+        log: [initialRun.message]});
+        if (isRunFinished) onFinished?.();
+      } catch (e) {
+        polling = false;
+        if (cancelled) return;
+
+        setState((prev) => ({...prev,
+          polling: polling,
+          fetchError: getErrorMessage(e)
+        }));
+      }
+
+      if (!polling) return;
+
+      pollingInterval = setInterval(async () => {
+      if (cancelled || !polling || fetching) return;
+
+      try {
+      fetching = true;
+      const run: EncodeRun = await fetchRun(runId);
+
+      const isRunFinished = isTerminalStage(run.stage);
+      polling = !isRunFinished;
+
+      if (cancelled) return;
+      setState((prev) => ({
+        run: run, 
+        polling: polling, 
+        fetchError: null, 
+        log: appendMessage(prev.log, run.message)}));
+        if (isRunFinished) onFinished?.()
+
+      if (!polling) {
+        clearInterval(pollingInterval);
+        return;
+        }
+      } catch (e) {
+        polling = false;
+        clearInterval(pollingInterval);
+
+        if (cancelled) return;
+
+        setState((prev) => ({...prev,
+          polling: polling,
+          fetchError: getErrorMessage(e)
+        }));
+      } finally {
+        fetching = false;
+      }
+    }, 1000);
+    }
+    fetchInitialRunAndSetupTimer();
+
+      return () => {
+            cancelled = true;
+            polling = false;
+            if (pollingInterval) {
+            clearInterval(pollingInterval);
+            }
+      }
   }, [runId]);
 
   return state;

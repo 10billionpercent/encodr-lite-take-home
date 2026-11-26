@@ -81,4 +81,8 @@ export function useCreateJob() {
  * a `refetchInterval` — both are legitimate; pick one and say why in the README.
  */
 
+export function fetchRun(id: string) {
+  return api.get<EncodeRun>(`/api/runs/${id}`);
+}
+
 export type { EncodeRun, Job, CreateJobInput };
